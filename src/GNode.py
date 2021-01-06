@@ -36,3 +36,6 @@ class GNode:
 
     def set_tag(self, tag):
         self.tag = tag
+
+    def __repr__(self) -> str:
+        return f"{self.key}"

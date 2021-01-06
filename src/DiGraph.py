@@ -1,7 +1,6 @@
 from src.GNode import GNode
 from src.EdgeData import EdgeData
 from src.GraphInterface import GraphInterface
-import sys
 
 
 class DiGraph(GraphInterface):
@@ -38,11 +37,10 @@ class DiGraph(GraphInterface):
         # if self.has_edge(id1, id2):
         #     return False
 
-        self.edges.append(id1, id2, weight)
+        # self.edges[id1][id2] = weight
         self.income_adjacent[id2] = id1
         self.outbound_adjacent[id1] = id2
         self.mc += 1
-        self.edges += 1
 
     def add_node(self, node_id: int, pos: tuple = None) -> bool:
         if node_id in self.vertices:
@@ -61,20 +59,25 @@ class DiGraph(GraphInterface):
             return False
 
     def remove_edge(self, node_id1: int, node_id2: int) -> bool:
-        pass
+        if not self.has_edge(node_id1, node_id2):
+            return False
 
     def get_node(self, node_id: int) -> GNode:
         return self.vertices.get(node_id)
 
-    # def has_edge(self, src: int, dest: int) -> bool:
-    #     return src in self.edges[src][dest]
+    def has_edge(self, src: int, dest: int) -> bool:
+        if src in self.income_adjacent[dest] and src in self.outbound_adjacent[dest] and \
+                dest in self.income_adjacent[src]:
+            return True
+        return False
+
+    def all_out_edges_of_node(self, id1: int) -> dict:
+        pass
+
+    def all_in_edges_of_node(self, id1: int) -> dict:
+        pass
+
+    def get_all_v(self) -> dict:
+        return self.vertices
 
 
-if __name__ == '__main__':
-    g1 = DiGraph()
-    g = GNode(2)
-    g.set_position(1, 2, 3)
-    g1.add_node(g.get_key(), g.get_position())
-    print(g1.get_node(2).get_position())
-    g1.add_node(3, (1, 2, 3))
-    g1.add_edge(2, 3, 1)
