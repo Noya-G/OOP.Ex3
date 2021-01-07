@@ -6,7 +6,6 @@ class GNode:
     def __init__(self, key):
         self.key = key
         self.info = ""
-        self.weight = sys.maxsize
         self.pos = None
         self.tag = -1
 

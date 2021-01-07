@@ -78,6 +78,15 @@ class DiGraph(GraphInterface):
         self.mc += 1
         return True
 
+    def get_edge_weight(self, src: int, dest: int) -> float:
+        i = 0
+        while i < self.e_size():
+            e_p = self.edges[i]
+            if e_p[0] == src and e_p[1] == dest:
+                return e_p[2]
+            i += 1
+        return -1
+
     def remove_node(self, node_id: int) -> bool:
         """
         Removes a node from the graph.
