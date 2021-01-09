@@ -87,6 +87,15 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(g.get_edge_weight(2, 1), 6)
         # add two edges -> verify the weight
 
+        g.add_edge(2, 1, -5)
+        self.assertEqual(g.get_edge_weight(2, 1), 6)
+        # update an edge's weight to a negative -> verify the weight didn't change
+
+        g.add_edge(0, 5, -5)
+        self.assertEqual(g.get_edge_weight(0, 5), -1)
+        self.assertFalse(g.has_edge(0, 5))
+        # make an edge with a negative weight -> verify the weight is -1 and the edge does not exist
+
         g.add_edge(0, 1, 6)
         self.assertEqual(g.get_edge_weight(0, 1), 6)
         # update the weight and verify it updated
@@ -156,7 +165,6 @@ class MyTestCase(unittest.TestCase):
         g.add_edge(1, 4, 3)
         g.add_edge(1, 5, 3)
         g.add_edge(1, 6, 3)
-        dic = {0: 1, 1: 3, 2: 4, 3: 5, 4: 6}
         self.assertDictEqual(g.all_in_edges_of_node(2), {0: 1})
         self.assertDictEqual(g.all_in_edges_of_node(3), {0: 1})
         self.assertDictEqual(g.all_in_edges_of_node(4), {0: 1})
@@ -169,15 +177,15 @@ class MyTestCase(unittest.TestCase):
         # verify an empty dictionary for a node that does not have an edge and does not exist
 
     def test_get_all_v(self):
-        g = self.generate_graph(5)
-        dic = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4}
-        res = g.get_all_v().values()
-        self.assertEquals(res, dic.values())
-        print(res)
-        # generate graph with 10 vertices -> verify they return as a dictionary
+        q = self.generate_graph(10)
+        self.assertListEqual(list(q.get_all_v()), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        # generate graph with 10 vertices -> verify they exist
 
-        # g = DiGraph()
-        # self.assertDictEqual(g.get_all_v(), {})
+        q.remove_node(3)
+        q.remove_node(4)
+        q.remove_node(5)
+        self.assertListEqual(list(q.get_all_v()), [0, 1, 2, 6, 7, 8, 9])
+        # remove 3 nodes -> verify changes in the get_all_v
 
 
 if __name__ == '__main__':

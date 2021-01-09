@@ -15,9 +15,6 @@ class GNode:
     def get_info(self):
         return self.info
 
-    def get_weight(self):
-        return self.weight
-
     def get_position(self):
         return self.pos
 
