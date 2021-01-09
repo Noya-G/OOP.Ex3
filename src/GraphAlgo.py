@@ -120,6 +120,18 @@ class GraphAlgo(GraphAlgoInterface):
         return ans
 
     def connected_component(self, id1: int) -> list:
+        component_original = self.connected_component_aid_original_geph(id1)
+        component_revers = self.connected_component_aid_reverse_geph(id1)
+        container = []
+        for k in component_original:
+            for m in component_revers:
+                if k == m:
+                    if k not in container:
+                        container.append(k)
+        container.sort()
+        return container
+
+    def connected_component_aid_original_geph(self,id1):
         self.reset_nodes_tags()
         container = []
         pointer = 0
@@ -127,6 +139,23 @@ class GraphAlgo(GraphAlgoInterface):
         while pointer < len(container):
             key = container[pointer]
             node_neighbors = self.graph.all_out_edges_of_node(key)
+            for m in node_neighbors:
+                neighbor_key = node_neighbors[m]
+                node_pointer = self.graph.get_node(neighbor_key)
+                if node_pointer.get_tag() == -1:
+                    container.append(neighbor_key)
+                    node_pointer.set_tag(1)
+            pointer += 1
+        return container
+
+    def connected_component_aid_reverse_geph(self,id1):
+        self.reset_nodes_tags()
+        container = []
+        pointer = 0
+        container.append(id1)
+        while pointer < len(container):
+            key = container[pointer]
+            node_neighbors = self.graph.all_in_edges_of_node(key)
             for m in node_neighbors:
                 neighbor_key = node_neighbors[m]
                 node_pointer = self.graph.get_node(neighbor_key)
@@ -174,12 +203,12 @@ class GraphAlgo(GraphAlgoInterface):
                 node_pointer = self.graph.get_node(dest_key)
                 minus_1 = -1
                 tag = node_pointer.get_tag()
-                if node_pointer.get_tag() == 0:
-                    if path_weight+edge_weight < paths[dest_key]:
-                        paths[dest_key] = path_weight+edge_weight
-                else:
+                if tag != -1:
+                    if path_weight + edge_weight < paths[dest_key]:
+                        paths[dest_key] = path_weight + edge_weight
+                if node_pointer.get_tag() == -1:
                     container.append(node_pointer)
-                    paths[dest_key] = path_weight+edge_weight
+                    paths[dest_key] = path_weight + edge_weight
                     node_pointer.set_tag(0)
             node_o_pointer.set_tag(1)
             pointer += 1
@@ -191,15 +220,17 @@ class GraphAlgo(GraphAlgoInterface):
 if __name__ == '__main__':
     g = GraphAlgo()
     i = 0
-    while i < 5:
+    while i < 8:
         g.graph.add_node(i)
         i += 1
     g.graph.add_edge(0, 2, 10)
+    g.graph.add_edge(2, 0, 10)
     g.graph.add_edge(0, 1, 1)
+    g.graph.add_edge(1, 0, 1)
     g.graph.add_edge(1, 5, 1)
     g.graph.add_edge(1, 4, 1)
     g.graph.add_edge(4, 3, 1)
     g.graph.add_edge(3, 2, 1)
-    print(g.shortest_path(0, 2))
-    k = g.connected_components()
+    print(g.shortest_path(0,2))
+    k = g.connected_component(0)
     print(k)
