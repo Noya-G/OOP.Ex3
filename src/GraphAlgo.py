@@ -96,10 +96,28 @@ class GraphAlgo(GraphAlgoInterface):
         pass
 
     def connected_component(self, id1: int) -> list:
-        pass
+        self.reset_nodes_tags()
+        container = []
+        pointer = 0
+        container.append(id1)
+        while pointer < len(container):
+            key = container[pointer]
+            node_neighbors = self.graph.all_out_edges_of_node(key)
+            for m in node_neighbors:
+                neighbor_key = node_neighbors[m]
+                node_pointer = self.graph.get_node(neighbor_key)
+                if node_pointer.get_tag() == -1:
+                    container.append(neighbor_key)
+                    node_pointer.set_tag(1)
+            pointer += 1
+        return container
 
     def connected_components(self) -> List[list]:
-        pass
+        ans = []
+        graph_nodes = self.graph.get_all_v()
+        for n in graph_nodes:
+            ans.append(self.connected_component(n))
+        return ans
 
     def plot_graph(self) -> None:
         pass
@@ -116,6 +134,52 @@ class GraphAlgo(GraphAlgoInterface):
             n = self.graph.get_node(n_key)
             n.set_tag(-1)
             i += 1
+
+    def dijksytra_algo(self, src, dest) -> (float, list):
+
+        self.reset_nodes_tags()
+        ans = []
+        paths = {}
+        container = []
+        pointer = 0
+        container.append(self.graph.get_node(src))
+        paths[src] = 0
+        container[0].set_tag(0)
+        while pointer < len(container):
+            node_o_pointer = container[pointer]
+            src_key = node_o_pointer.get_key()
+            node_neighbors = self.graph.all_out_edges_of_node(src_key)
+            path_weight = paths[src_key]
+            for k in range(0, len(node_neighbors)):
+                dest_key = node_neighbors[k]
+                edge_weight = self.graph.get_edge_weight(src_key, dest_key)
+                node_pointer = self.graph.get_node(dest_key)
+                minus_1 = -1
+                tag = node_pointer.get_tag()
+                if node_pointer.get_tag() == 0:
+                    if path_weight + edge_weight < paths[dest_key]:
+                        paths[dest_key] = path_weight + edge_weight
+                else:
+                    container.append(node_pointer)
+                    paths[dest_key] = path_weight + edge_weight
+                    node_pointer.set_tag(0)
+            node_o_pointer.set_tag(1)
+            pointer += 1
+        ans.append(dest)
+        pointer = 0
+        key = dest
+        while src not in ans:
+            key = ans[pointer]
+            w1 = paths[key]
+            for l in paths:
+                w2 = paths[l]
+                w_e = self.graph.get_edge_weight(l, key)
+                if w_e is not None:
+                    if w2 + w_e is w1:
+                        key = l
+                        ans.append(l)
+            pointer += 1
+        return paths[dest_key], ans
 
 
 if __name__ == '__main__':
