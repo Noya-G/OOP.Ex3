@@ -26,74 +26,98 @@ class GraphAlgo(GraphAlgoInterface):
         plus:
         https://www.geeksforgeeks.org/how-to-convert-python-dictionary-to-json/
         https://www.w3schools.com/python/python_try_except.asp
-        https://www.geeksforgeeks.org/read-json-file-using-python/
-
+        https://www.geeksforgeeks.org/saving-text-json-and-csv-to-a-file-in-python/
         :param file_name:
         :return:
         """
+        if self.graph is None:
+            return False
         try:
-            with open(file_name, 'r') as file_n:
-                g_s = file_n.read()
-                json_graph = json.loads(g_s)
-            for m in json_graph['Nodes']:
-                key = m.get("id")
-                pos = m.get("pos")
-                if "pos" not in m:
-                    node = GNode(key)
-                    key = node.get_key()
-                    self.graph.add_node(key)
-                else:
-                    node = GNode(key)
-                    key = node.get_key()
-                    self.graph.add_node(key)
-                    position = tuple((float, m['pos'].split(',')))
-                    self.graph.add_node(key, position)
-            for k in json_graph['Edges']:
-                src = int(k.get('src'))
-                w = float(k.get('w'))
-                dst = int(k.get('dest'))
+            file_n = open(file_name, 'r')
+            json_graph = json.loads(file_n.read())
+            for i in json_graph['Edges']:
+                src = int(i['src]'])
+                w = float(i['w'])
+                dst = int(i['dest'])
                 self.graph.add_edge(src, dst, w)
+
+            for i in json_graph['Node']:
+                node = GNode(i['id'])
+                position = tuple((float, i['pos'].split(',')))
+                self.graph.add_node(node.get_key(), position)
             file_n.close()
             return True
         except OSError:
             print("File does not exist!\n")
             return False
 
-    def save_to_json(self, file_name: str) -> bool:
-        """
-        A method that saves the current graph into json file.
-        in order to implement the function we used the previous assignment's code
-        plus:
+    # def save_to_json(self, file_name: str) -> bool:
+    #     """
+    #     A method that saves the current graph into json file.
+    #     in order to implement the function we used the previous assignment's code
+    #     plus:
+    #     https://www.geeksforgeeks.org/read-json-file-using-python/
+    #     https://www.w3schools.com/python/python_try_except.asp
+    #
+    #     :param file_name:
+    #     :return: boolean
+    #     """
+    #     try:
+    #         with open(file_name, 'w') as file:
+    #             graph = {"Edges": [], "Nodes": []}
+    #             for k in self.graph.edges:
+    #                 graph['Edges'].append({'src': k[0], 'w': k[2], 'dest': k[1]})
+    #
+    #             for j in self.graph.vertices:
+    #                 node = self.graph.get_node(j)
+    #                 if node.get_position() is None:
+    #                     position = "0,0,0"
+    #                 else:
+    #                     position = str(node.get_position()[0]) + "," + str(node.get_position()[2]) + "," + str(
+    #                         node.get_position()[1])
+    #                 d = {"pos:", position, "id:", node.get_key()}
+    #                 graph['Nodes'].append(d)
+    #                 # graph['Nodes'].append("{pos:" + position, "id:" + node.get_key() + "}"
+    #                 # graph['Nodes'].append("{\"pos\":" + str(
+    #                 #     node.get_position()[0] + "," + str(node.get_position()[1]) + "," + str(
+    #                 #         node.get_position()[2])) +
+    #                 #                       "\"id\":" + node.get_key() + "}")
+    #             str_graph = json.dumps(graph, indent=4)
+    #             file.write(str_graph)
+    #             return True
+    #     except OSError:
+    #         print("Error, can't save file")
+    #         return False
 
-        https://www.w3schools.com/python/python_try_except.asp
-        https://www.geeksforgeeks.org/saving-text-json-and-csv-to-a-file-in-python/
-        :param file_name:
-        :return: boolean
-        """
-        try:
-            with open(file_name, 'w') as file:
-                graph = {"Edges": [], "Nodes": []}
-                for k in self.graph.edges:
-                    graph["Edges"].append({"src": k[0], "w": k[2], "dest": k[1]})
+    def dijkstra(self, src: int, dest: int) -> (float, list):
+        self.reset_nodes_tags()
+        paths = {}
+        container = []
+        pointer = 0
+        container.append(self.graph.get_node(src))
+        paths[src] = 0
+        container[0].set_tag(0)
+        while pointer < len(container):
+            node_pointer = container[pointer]
+            src_key = node_pointer.get_key()
+            node_neighbors = self.graph.all_out_edges_of_node(src_key)
+            path_weight = paths[src_key]
+            for k in range(0, len(node_neighbors)):
+                dest_key = node_neighbors[k]
+                edge_weight = self.graph.get_edge_weight(src_key, dest_key)
+                node_pointer = self.graph.get_node(dest_key)
+                if node_pointer.get_tag() == 0:
+                    paths[dest_key] = edge_weight + path_weight
+                    container.append(node_pointer)
+                    node_pointer.set_tag(0)
+            container[pointer].set_tag(1)
+            node_pointer += 1
 
-                for j in self.graph.vertices:
-                    node = self.graph.get_node(j)
-                    if node.get_position() is None:
-                        graph["Nodes"].append({"id": node.get_key()})
-                    else:
-                        position = str(node.get_position()[0]) + "," + str(node.get_position()[1]) + "," + str(node.get_position()[2])
-                        graph["Nodes"].append({'pos': position, "id": node.get_key()})
 
-                file.write(json.dumps(graph))
-                file.close()
-                return True
-
-        except OSError:
-            print("File", file_name, " not found! ")
-            return False
 
     def shortest_path(self, id1: int, id2: int) -> (float, list):
-        pass
+        ans = self.dijksytra_algo(id1, id2)
+        return ans
 
     def connected_component(self, id1: int) -> list:
         self.reset_nodes_tags()
@@ -127,16 +151,10 @@ class GraphAlgo(GraphAlgoInterface):
         Aid function that walks all over the graph and reset each node's tag
         :return: None
         """
-        i = 0
-        while i < self.graph.v_size():
-            nodes = self.graph.get_all_v()
-            n_key = nodes[i]
-            n = self.graph.get_node(n_key)
-            n.set_tag(-1)
-            i += 1
+        for k in self.graph.get_all_v():
+            self.graph.get_node(k).set_tag(-1)
 
     def dijksytra_algo(self, src, dest) -> (float, list):
-
         self.reset_nodes_tags()
         ans = []
         paths = {}
@@ -157,49 +175,31 @@ class GraphAlgo(GraphAlgoInterface):
                 minus_1 = -1
                 tag = node_pointer.get_tag()
                 if node_pointer.get_tag() == 0:
-                    if path_weight + edge_weight < paths[dest_key]:
-                        paths[dest_key] = path_weight + edge_weight
+                    if path_weight+edge_weight < paths[dest_key]:
+                        paths[dest_key] = path_weight+edge_weight
                 else:
                     container.append(node_pointer)
-                    paths[dest_key] = path_weight + edge_weight
+                    paths[dest_key] = path_weight+edge_weight
                     node_pointer.set_tag(0)
             node_o_pointer.set_tag(1)
             pointer += 1
-        ans.append(dest)
-        pointer = 0
-        key = dest
-        while src not in ans:
-            key = ans[pointer]
-            w1 = paths[key]
-            for l in paths:
-                w2 = paths[l]
-                w_e = self.graph.get_edge_weight(l, key)
-                if w_e is not None:
-                    if w2 + w_e is w1:
-                        key = l
-                        ans.append(l)
-            pointer += 1
+        ans = list(paths)
+        ans.reverse()
         return paths[dest_key], ans
 
 
 if __name__ == '__main__':
     g = GraphAlgo()
     i = 0
-    while i < 6:
+    while i < 5:
         g.graph.add_node(i)
         i += 1
-
-    g.graph.add_edge(0, 1, 5)
-    g.graph.add_edge(0, 2, 3)
-    g.graph.add_edge(1, 3, 6)
-    g.graph.add_edge(1, 2, 2)
-    g.graph.add_edge(2, 4, 4)
-    g.graph.add_edge(2, 5, 2)
-    g.graph.add_edge(2, 3, 7)
-    g.graph.add_edge(3, 4, -1)
-    g.graph.add_edge(4, 5, -2)
-
-
-
-
-
+    g.graph.add_edge(0, 2, 10)
+    g.graph.add_edge(0, 1, 1)
+    g.graph.add_edge(1, 5, 1)
+    g.graph.add_edge(1, 4, 1)
+    g.graph.add_edge(4, 3, 1)
+    g.graph.add_edge(3, 2, 1)
+    print(g.shortest_path(0, 2))
+    k = g.connected_components()
+    print(k)
