@@ -26,68 +26,72 @@ class GraphAlgo(GraphAlgoInterface):
         plus:
         https://www.geeksforgeeks.org/how-to-convert-python-dictionary-to-json/
         https://www.w3schools.com/python/python_try_except.asp
-        https://www.geeksforgeeks.org/saving-text-json-and-csv-to-a-file-in-python/
+        https://www.geeksforgeeks.org/read-json-file-using-python/
+
         :param file_name:
         :return:
         """
-        if self.graph is None:
-            return False
         try:
-            file_n = open(file_name, 'r')
-            json_graph = json.loads(file_n.read())
-            for i in json_graph['Edges']:
-                src = int(i['src]'])
-                w = float(i['w'])
-                dst = int(i['dest'])
+            with open(file_name, 'r') as file_n:
+                g_s = file_n.read()
+                json_graph = json.loads(g_s)
+            for m in json_graph['Nodes']:
+                key = m.get("id")
+                pos = m.get("pos")
+                if "pos" not in m:
+                    node = GNode(key)
+                    key = node.get_key()
+                    self.graph.add_node(key)
+                else:
+                    node = GNode(key)
+                    key = node.get_key()
+                    self.graph.add_node(key)
+                    position = tuple((float, m['pos'].split(',')))
+                    self.graph.add_node(key, position)
+            for k in json_graph['Edges']:
+                src = int(k.get('src'))
+                w = float(k.get('w'))
+                dst = int(k.get('dest'))
                 self.graph.add_edge(src, dst, w)
-
-            for i in json_graph['Node']:
-                node = GNode(i['id'])
-                position = tuple((float, i['pos'].split(',')))
-                self.graph.add_node(node.get_key(), position)
             file_n.close()
             return True
         except OSError:
             print("File does not exist!\n")
             return False
 
-    # def save_to_json(self, file_name: str) -> bool:
-    #     """
-    #     A method that saves the current graph into json file.
-    #     in order to implement the function we used the previous assignment's code
-    #     plus:
-    #     https://www.geeksforgeeks.org/read-json-file-using-python/
-    #     https://www.w3schools.com/python/python_try_except.asp
-    #
-    #     :param file_name:
-    #     :return: boolean
-    #     """
-    #     try:
-    #         with open(file_name, 'w') as file:
-    #             graph = {"Edges": [], "Nodes": []}
-    #             for k in self.graph.edges:
-    #                 graph['Edges'].append({'src': k[0], 'w': k[2], 'dest': k[1]})
-    #
-    #             for j in self.graph.vertices:
-    #                 node = self.graph.get_node(j)
-    #                 if node.get_position() is None:
-    #                     position = "0,0,0"
-    #                 else:
-    #                     position = str(node.get_position()[0]) + "," + str(node.get_position()[2]) + "," + str(
-    #                         node.get_position()[1])
-    #                 d = {"pos:", position, "id:", node.get_key()}
-    #                 graph['Nodes'].append(d)
-    #                 # graph['Nodes'].append("{pos:" + position, "id:" + node.get_key() + "}"
-    #                 # graph['Nodes'].append("{\"pos\":" + str(
-    #                 #     node.get_position()[0] + "," + str(node.get_position()[1]) + "," + str(
-    #                 #         node.get_position()[2])) +
-    #                 #                       "\"id\":" + node.get_key() + "}")
-    #             str_graph = json.dumps(graph, indent=4)
-    #             file.write(str_graph)
-    #             return True
-    #     except OSError:
-    #         print("Error, can't save file")
-    #         return False
+    def save_to_json(self, file_name: str) -> bool:
+        """
+        A method that saves the current graph into json file.
+        in order to implement the function we used the previous assignment's code
+        plus:
+
+        https://www.w3schools.com/python/python_try_except.asp
+        https://www.geeksforgeeks.org/saving-text-json-and-csv-to-a-file-in-python/
+        :param file_name:
+        :return: boolean
+        """
+        try:
+            with open(file_name, 'w') as file:
+                graph = {"Edges": [], "Nodes": []}
+                for k in self.graph.edges:
+                    graph["Edges"].append({"src": k[0], "w": k[2], "dest": k[1]})
+
+                for j in self.graph.vertices:
+                    node = self.graph.get_node(j)
+                    if node.get_position() is None:
+                        graph["Nodes"].append({"id": node.get_key()})
+                    else:
+                        position = str(node.get_position()[0]) + "," + str(node.get_position()[1]) + "," + str(
+                            node.get_position()[2])
+                        graph["Nodes"].append({'pos': position, "id": node.get_key()})
+
+                file.write(json.dumps(graph))
+                file.close()
+                return True
+
+        except OSError:
+            print("File", file_name, " not found! ")
+            return False
 
     def dijkstra(self, src: int, dest: int) -> (float, list):
         self.reset_nodes_tags()
@@ -129,6 +133,7 @@ class GraphAlgo(GraphAlgoInterface):
                     if k not in container:
                         container.append(k)
         container.sort()
+        remove_duplications(container)
         return container
 
     def connected_component_aid_original_geph(self,id1):
@@ -232,5 +237,5 @@ if __name__ == '__main__':
     g.graph.add_edge(4, 3, 1)
     g.graph.add_edge(3, 2, 1)
     print(g.shortest_path(0,2))
-    k = g.connected_component(0)
+    k = g.connected_components()
     print(k)
