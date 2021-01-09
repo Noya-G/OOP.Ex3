@@ -164,29 +164,27 @@ class DiGraph(GraphInterface):
         """return a dictionary of all the nodes connected from node_id , each node is represented using a pair
         (other_node_id, weight)
         """
-        outgoing = []
+        outcome = {}
         i = 0
         while i < len(self.edges):
             p = self.edges[i]
             if id1 == p[0]:
-                outgoing.append(p[1])
+                outcome[p[1]] = p[2]
             i += 1
-        dict_of_edges = {i: outgoing[i] for i in range(0, len(outgoing))}
-        return dict_of_edges
+        return outcome
 
     def all_in_edges_of_node(self, id1: int) -> dict:
         """return a dictionary of all the nodes connected to (into) node_id ,
         each node is represented using a pair (other_node_id, weight)
          """
-        incoming = []
+        incoming = {}
         i = 0
         while i < len(self.edges):
             p = self.edges[i]
             if id1 == p[1]:
-                incoming.append(p[0])
+                incoming[p[0]] = p[2]
             i += 1
-        dict_of_edges = {i: incoming[i] for i in range(0, len(incoming))}
-        return dict_of_edges
+        return incoming
 
     def get_all_v(self) -> dict:
         """return a dictionary of all the nodes in the Graph, each node is represented using a pair
