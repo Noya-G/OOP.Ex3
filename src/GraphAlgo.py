@@ -1,4 +1,8 @@
 import json
+from random import random
+
+import numpy
+import matplotlib.pyplot as plt
 from typing import List
 
 from DiGraph import DiGraph
@@ -10,8 +14,11 @@ import sys
 
 class GraphAlgo(GraphAlgoInterface):
 
-    def __init__(self):
-        self.graph = DiGraph()
+    def __init__(self, graph: DiGraph = None):
+        if graph is None:
+            self.graph = DiGraph()
+        else:
+            self.graph = graph
 
     def get_graph(self) -> GraphInterface:
         """
@@ -117,8 +124,6 @@ class GraphAlgo(GraphAlgoInterface):
             container[pointer].set_tag(1)
             node_pointer += 1
 
-
-
     def shortest_path(self, id1: int, id2: int) -> (float, list):
         ans = self.dijksytra_algo(id1, id2)
         return ans
@@ -143,8 +148,8 @@ class GraphAlgo(GraphAlgoInterface):
         while pointer < len(container):
             key = container[pointer]
             node_neighbors = self.graph.all_out_edges_of_node(key)
-            for m in node_neighbors:
-                neighbor_key = node_neighbors[m]
+            for m in range(0, len(node_neighbors)):
+                neighbor_key = list(node_neighbors.keys())[m]
                 node_pointer = self.graph.get_node(neighbor_key)
                 if node_pointer.get_tag() == -1:
                     container.append(neighbor_key)
@@ -160,8 +165,8 @@ class GraphAlgo(GraphAlgoInterface):
         while pointer < len(container):
             key = container[pointer]
             node_neighbors = self.graph.all_in_edges_of_node(key)
-            for m in node_neighbors:
-                neighbor_key = node_neighbors[m]
+            for m in range(0, len(node_neighbors)):
+                neighbor_key = list(node_neighbors.keys())[m]
                 node_pointer = self.graph.get_node(neighbor_key)
                 if node_pointer.get_tag() == -1:
                     container.append(neighbor_key)
@@ -178,9 +183,6 @@ class GraphAlgo(GraphAlgoInterface):
                 ans.append(self.connected_component(n))
         return ans
 
-    def plot_graph(self) -> None:
-        pass
-
     def reset_nodes_tags(self) -> None:
         """
         Aid function that walks all over the graph and reset each node's tag
@@ -190,6 +192,8 @@ class GraphAlgo(GraphAlgoInterface):
             self.graph.get_node(k).set_tag(-1)
 
     def dijksytra_algo(self, src, dest) -> (float, list):
+        if src not in self.graph.vertices or dest not in self.graph.vertices:
+            return ()
         self.reset_nodes_tags()
         ans = []
         paths = {}
@@ -202,9 +206,11 @@ class GraphAlgo(GraphAlgoInterface):
             node_o_pointer = container[pointer]
             src_key = node_o_pointer.get_key()
             node_neighbors = self.graph.all_out_edges_of_node(src_key)
+            # print("k: ", list(node_neighbors.keys())[0])
+            # print(node_neighbors.keys()[0])
             path_weight = paths[src_key]
             for k in range(0, len(node_neighbors)):
-                dest_key = node_neighbors[k]
+                dest_key = list(node_neighbors.keys())[k]
                 edge_weight = self.graph.get_edge_weight(src_key, dest_key)
                 node_pointer = self.graph.get_node(dest_key)
                 tag = node_pointer.get_tag()
@@ -221,6 +227,7 @@ class GraphAlgo(GraphAlgoInterface):
         ans.reverse()
         return paths[dest], ans
 
+
 if __name__ == '__main__':
     g = GraphAlgo()
     i = 0
@@ -235,6 +242,8 @@ if __name__ == '__main__':
     g.graph.add_edge(1, 4, 1)
     g.graph.add_edge(4, 3, 1)
     g.graph.add_edge(3, 2, 1)
-    print(g.shortest_path(0,2))
-    k = g.connected_components()
-    print(k)
+    print(g.shortest_path(0,3))
+    print(g.connected_components())
+    g.plot_graph()
+
+
