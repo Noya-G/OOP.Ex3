@@ -207,7 +207,6 @@ class GraphAlgo(GraphAlgoInterface):
                 dest_key = node_neighbors[k]
                 edge_weight = self.graph.get_edge_weight(src_key, dest_key)
                 node_pointer = self.graph.get_node(dest_key)
-                minus_1 = -1
                 tag = node_pointer.get_tag()
                 if tag != -1:
                     if path_weight + edge_weight < paths[dest_key]:
@@ -220,8 +219,7 @@ class GraphAlgo(GraphAlgoInterface):
             pointer += 1
         ans = list(paths)
         ans.reverse()
-        return paths[dest_key], ans
-
+        return paths[dest], ans
 
 if __name__ == '__main__':
     g = GraphAlgo()
