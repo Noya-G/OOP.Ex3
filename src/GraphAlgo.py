@@ -133,7 +133,6 @@ class GraphAlgo(GraphAlgoInterface):
                     if k not in container:
                         container.append(k)
         container.sort()
-        remove_duplications(container)
         return container
 
     def connected_component_aid_original_geph(self,id1):
@@ -174,7 +173,9 @@ class GraphAlgo(GraphAlgoInterface):
         ans = []
         graph_nodes = self.graph.get_all_v()
         for n in graph_nodes:
-            ans.append(self.connected_component(n))
+            mid_ans = self.connected_component(n)
+            if not ans.__contains__(mid_ans):
+                ans.append(self.connected_component(n))
         return ans
 
     def plot_graph(self) -> None:
