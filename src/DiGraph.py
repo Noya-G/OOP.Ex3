@@ -137,7 +137,6 @@ class DiGraph(GraphInterface):
                 return True
             i += 1
 
-
     def get_node(self, node_id: int) -> GNode:
         """
         A method that returns a GNode object by given a specific node
