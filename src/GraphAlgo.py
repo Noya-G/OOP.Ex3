@@ -92,7 +92,11 @@ class GraphAlgo(GraphAlgoInterface):
             return False
 
     def dijkstra(self, src: int, dest: int) -> (float, list):
-        pass
+        if src == dest:
+            return None
+        if src not in self.graph.vertices or dest not in self.graph.vertices:
+            return None
+
 
     def shortest_path(self, id1: int, id2: int) -> (float, list):
         pass
@@ -123,11 +127,21 @@ class GraphAlgo(GraphAlgoInterface):
 if __name__ == '__main__':
     g = GraphAlgo()
     i = 0
-    while i < 5:
+    while i < 6:
         g.graph.add_node(i)
         i += 1
-    g.graph.add_edge(1,2,3)
-    print("size of edgessss", g.graph.e_size())
-    g.save_to_json("file2")
-    g.load_from_json("A0")
-    print(g.graph.edges)
+
+    g.graph.add_edge(0, 1, 5)
+    g.graph.add_edge(0, 2, 3)
+    g.graph.add_edge(1, 3, 6)
+    g.graph.add_edge(1, 2, 2)
+    g.graph.add_edge(2, 4, 4)
+    g.graph.add_edge(2, 5, 2)
+    g.graph.add_edge(2, 3, 7)
+    g.graph.add_edge(3, 4, -1)
+    g.graph.add_edge(4, 5, -2)
+    print("Following are shortest distances from source %d " % 1)
+    g.s_path(1)
+
+
+
