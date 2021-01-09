@@ -55,7 +55,7 @@ class GraphAlgo(GraphAlgoInterface):
                 self.graph.add_edge(src, dst, w)
             file_n.close()
             return True
-        except IOError:
+        except OSError:
             print("File does not exist!\n")
             return False
 
@@ -79,9 +79,10 @@ class GraphAlgo(GraphAlgoInterface):
                 for j in self.graph.vertices:
                     node = self.graph.get_node(j)
                     if node.get_position() is None:
-                        node.set_position(0, 0, 0)
-                    position = str(node.get_position()[0]) + "," + str(node.get_position()[1]) + "," + str(node.get_position()[2])
-                    graph["Nodes"].append({'pos': position, "id": node.get_key()})
+                        graph["Nodes"].append({"id": node.get_key()})
+                    else:
+                        position = str(node.get_position()[0]) + "," + str(node.get_position()[1]) + "," + str(node.get_position()[2])
+                        graph["Nodes"].append({'pos': position, "id": node.get_key()})
 
                 file.write(json.dumps(graph))
                 file.close()
@@ -90,13 +91,6 @@ class GraphAlgo(GraphAlgoInterface):
         except OSError:
             print("File", file_name, " not found! ")
             return False
-
-    def dijkstra(self, src: int, dest: int) -> (float, list):
-        if src == dest:
-            return None
-        if src not in self.graph.vertices or dest not in self.graph.vertices:
-            return None
-
 
     def shortest_path(self, id1: int, id2: int) -> (float, list):
         pass
@@ -140,8 +134,8 @@ if __name__ == '__main__':
     g.graph.add_edge(2, 3, 7)
     g.graph.add_edge(3, 4, -1)
     g.graph.add_edge(4, 5, -2)
-    print("Following are shortest distances from source %d " % 1)
-    g.s_path(1)
+
+
 
 
 
