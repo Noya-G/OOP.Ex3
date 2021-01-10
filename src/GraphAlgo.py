@@ -1,7 +1,7 @@
 import json
 from random import random
 
-import numpy
+
 import matplotlib.pyplot as plt
 from typing import List
 
@@ -9,7 +9,6 @@ from DiGraph import DiGraph
 from GNode import GNode
 from GraphAlgoInterface import GraphAlgoInterface
 from GraphInterface import GraphInterface
-import sys
 
 
 class GraphAlgo(GraphAlgoInterface):
@@ -183,6 +182,46 @@ class GraphAlgo(GraphAlgoInterface):
                 ans.append(self.connected_component(n))
         return ans
 
+    def plot_graph(self) -> None:
+        """
+        Plots the graph.
+        If the nodes have a position, the nodes will be placed there.
+        Otherwise, they will be placed in a random but elegant manner.
+        @return: None
+        """
+        self.reset_nodes_tags()
+        x = []
+        y = []
+        key = []
+        graph_vertex = self.graph.get_all_v()
+        for i in graph_vertex:
+            node_pointer = self.graph.get_node(i)
+            pos = node_pointer.get_position()
+            if pos is None:
+                node_pointer.set_position(random() * 434, random() * 35, 0)
+            pos = node_pointer.get_position()
+            x.append(pos[0])
+            y.append(pos[1])
+            key.append(i)
+        fig, ax = plt.subplots()
+        ax.scatter(x, y)
+
+        for i in self.graph.edges:
+            src = self.graph.get_node(i[0])
+            dest = self.graph.get_node(i[1])
+            src_x = src.get_position()[0]
+            src_y = src.get_position()[1]
+            dest_x = dest.get_position()[0]
+            dest_y = dest.get_position()[1]
+            x_list = [src_x, dest_x]
+            y_list = [src_y, dest_y]
+            ax.annotate("", xy=(dest_x, dest_y), xytext=(src_x, src_y), arrowprops=dict(arrowstyle="->"), color="RED")
+            plt.plot(x_list, y_list, color="CYAN")
+        for i, txt in enumerate(key):
+            ax.annotate(key[i], (x[i], y[i]), color="BLUE")
+
+        plt.show()
+
     def reset_nodes_tags(self) -> None:
         """
         Aid function that walks all over the graph and reset each node's tag
@@ -195,7 +234,6 @@ class GraphAlgo(GraphAlgoInterface):
         if src not in self.graph.vertices or dest not in self.graph.vertices:
             return ()
         self.reset_nodes_tags()
-        ans = []
         paths = {}
         container = []
         pointer = 0
@@ -206,8 +244,6 @@ class GraphAlgo(GraphAlgoInterface):
             node_o_pointer = container[pointer]
             src_key = node_o_pointer.get_key()
             node_neighbors = self.graph.all_out_edges_of_node(src_key)
-            # print("k: ", list(node_neighbors.keys())[0])
-            # print(node_neighbors.keys()[0])
             path_weight = paths[src_key]
             for k in range(0, len(node_neighbors)):
                 dest_key = list(node_neighbors.keys())[k]
@@ -223,27 +259,11 @@ class GraphAlgo(GraphAlgoInterface):
                     node_pointer.set_tag(0)
             node_o_pointer.set_tag(1)
             pointer += 1
+        if dest not in paths:
+            return float('inf'), []
         ans = list(paths)
         ans.reverse()
         return paths[dest], ans
 
-
-if __name__ == '__main__':
-    g = GraphAlgo()
-    i = 0
-    while i < 8:
-        g.graph.add_node(i)
-        i += 1
-    g.graph.add_edge(0, 2, 10)
-    g.graph.add_edge(2, 0, 10)
-    g.graph.add_edge(0, 1, 1)
-    g.graph.add_edge(1, 0, 1)
-    g.graph.add_edge(1, 5, 1)
-    g.graph.add_edge(1, 4, 1)
-    g.graph.add_edge(4, 3, 1)
-    g.graph.add_edge(3, 2, 1)
-    print(g.shortest_path(0,3))
-    print(g.connected_components())
-    g.plot_graph()
 
 
