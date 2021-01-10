@@ -124,10 +124,15 @@ class GraphAlgo(GraphAlgoInterface):
             node_pointer += 1
 
     def shortest_path(self, id1: int, id2: int) -> (float, list):
+        if id1 not in self.graph.vertices or id2 not in self.graph.vertices:
+            return float('inf'), []
         ans = self.dijksytra_algo(id1, id2)
         return ans
 
     def connected_component(self, id1: int) -> list:
+        # If the graph is None or id1 is not in the graph, the function should return an empty list []
+        if self.graph is None or self.graph.get_node(id1) is None:
+            return []
         component_original = self.connected_component_aid_original_geph(id1)
         component_revers = self.connected_component_aid_reverse_geph(id1)
         container = []
@@ -231,8 +236,6 @@ class GraphAlgo(GraphAlgoInterface):
             self.graph.get_node(k).set_tag(-1)
 
     def dijksytra_algo(self, src, dest) -> (float, list):
-        if src not in self.graph.vertices or dest not in self.graph.vertices:
-            return ()
         self.reset_nodes_tags()
         paths = {}
         container = []
@@ -261,9 +264,21 @@ class GraphAlgo(GraphAlgoInterface):
             pointer += 1
         if dest not in paths:
             return float('inf'), []
-        ans = list(paths)
-        ans.reverse()
+        ans = []
+        pointer = 0
+        key = dest
+        ans.append(key)
+        while src not in ans:
+            path_weight = paths[ans[pointer]]
+            n_1_k = ans[pointer]
+            for i in paths:
+                n_2_k = i
+                path_weight_2 = paths[i]
+                edge_weight = self.graph.get_edge_weight(n_2_k,n_1_k)
+                if path_weight_2 + edge_weight == path_weight:
+                    ans.append(n_2_k)
+                    break
+            pointer += 1
+        ans.sort()
         return paths[dest], ans
-
-
 
