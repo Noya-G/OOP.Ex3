@@ -10,7 +10,7 @@ Contains various graph theory methods that can be done on a directed weighted gr
 implemented by two different interfaces and visualized as well
 
 
-####Directed weighted graph class methods:
+#### Directed weighted graph class methods:
 - _Add\remove a vertex on the graph._ 
 - _Add an edge by connecting two vertices._ 
 - _Check whether vertices has an edge between them or not._ 
