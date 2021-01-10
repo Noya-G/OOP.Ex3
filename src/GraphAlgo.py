@@ -12,8 +12,55 @@ from GraphInterface import GraphInterface
 
 
 class GraphAlgo(GraphAlgoInterface):
+    """
+ *  1) This class represents a Graph-Theory Algorithms on a directed weighted graph that is based on the given
+ *     GraphAlgoInterface api.
+ *
+ *  2) This class and the algorithm is based on a Tree data structure
+ *
+ * This class contains all the requested methods:
+ *              - get_graph
+ *              - load
+ *              - load_from_json
+ *              - save_to_json
+ *              - shortestPath
+ *              - connected_component
+ *              - connected_component by given a vertex
+ *              - plot_graph
+ *
+ * Dijkstra's Shortest-Path algorithm:
+ *
+ *
+ * function Dijkstra(Graph,source):
+ *
+ *   	create vertex set Q
+ *
+ *   	for each vertex v in Graph:		//Initialization
+ *   		dist[v] <- INFINITY		//Unknown distance from source to V
+ *   		prev[v] <- UNDEFINED		//Previous node in optimal path from source
+ *   		add v to Q			//All nodes initially in Q (unvisited nodes)
+ *
+ *      dist[source] <- 0			//Distance from source to source
+ *
+ *   	while Q is not empty:
+ *   		u <- vertex in Q with min dist[u] //Source node will be selected first
+ *   		remove u from Q
+ *
+ *
+ *   		for each neighbor v of u:        // where v is still in Q
+ *   			alt <- dist[u] + length(u,v)
+ *   			if alt < dist[v]:	 // A shorter path to v has been found
+ *   			dist[v] <- alt
+ *   			prev[v] <- u
+ *
+ *   	return dist[], prev[]
+    """
 
     def __init__(self, graph: DiGraph = None):
+        """
+            init method
+        :param graph:
+        """
         if graph is None:
             self.graph = DiGraph()
         else:
@@ -99,38 +146,33 @@ class GraphAlgo(GraphAlgoInterface):
             print("File", file_name, " not found! ")
             return False
 
-    def dijkstra(self, src: int, dest: int) -> (float, list):
-        self.reset_nodes_tags()
-        paths = {}
-        container = []
-        pointer = 0
-        container.append(self.graph.get_node(src))
-        paths[src] = 0
-        container[0].set_tag(0)
-        while pointer < len(container):
-            node_pointer = container[pointer]
-            src_key = node_pointer.get_key()
-            node_neighbors = self.graph.all_out_edges_of_node(src_key)
-            path_weight = paths[src_key]
-            for k in range(0, len(node_neighbors)):
-                dest_key = node_neighbors[k]
-                edge_weight = self.graph.get_edge_weight(src_key, dest_key)
-                node_pointer = self.graph.get_node(dest_key)
-                if node_pointer.get_tag() == 0:
-                    paths[dest_key] = edge_weight + path_weight
-                    container.append(node_pointer)
-                    node_pointer.set_tag(0)
-            container[pointer].set_tag(1)
-            node_pointer += 1
-
     def shortest_path(self, id1: int, id2: int) -> (float, list):
+        """
+        Returns the shortest path from node id1 to node id2 using Dijkstra's Algorithm
+        @param id1: The start node id
+        @param id2: The end node id
+        @return: The distance of the path, a list of the nodes ids that the path goes through
+
+        Notes:
+        If there is no path between id1 and id2, or one of them dose not exist the function returns (float('inf'),[])
+        More info:
+        https://en.wikipedia.org/wiki/Dijkstra's_algorithm
+        """
         if id1 not in self.graph.vertices or id2 not in self.graph.vertices:
             return float('inf'), []
         ans = self.dijksytra_algo(id1, id2)
         return ans
 
     def connected_component(self, id1: int) -> list:
-        # If the graph is None or id1 is not in the graph, the function should return an empty list []
+        """
+        Finds the Strongly Connected Component(SCC) that node id1 is a part of.
+        based on two helping functions below and compare them
+        @param id1: The node id
+        @return: The list of nodes in the SCC
+
+        Notes:
+        If the graph is None or id1 is not in the graph, the function should return an empty list []
+        """
         if self.graph is None or self.graph.get_node(id1) is None:
             return []
         component_original = self.connected_component_aid_original_geph(id1)
@@ -144,7 +186,13 @@ class GraphAlgo(GraphAlgoInterface):
         container.sort()
         return container
 
-    def connected_component_aid_original_geph(self,id1):
+    def connected_component_aid_original_geph(self, id1):
+        """
+        A method that helps us in connected components by a given node.
+        gets all keys tags of every nodes that are connected to the id1 node
+        :param id1:
+        :return: container
+        """
         self.reset_nodes_tags()
         container = []
         pointer = 0
@@ -161,7 +209,14 @@ class GraphAlgo(GraphAlgoInterface):
             pointer += 1
         return container
 
-    def connected_component_aid_reverse_geph(self,id1):
+    def connected_component_aid_reverse_geph(self, id1):
+        """
+        A method that helps us in connected components by a given node.
+        gets all keys tags of every nodes that are connected to the id1 node but the only
+        change is that the function reverse the graph
+        :param id1:
+        :return: container
+        """
         self.reset_nodes_tags()
         container = []
         pointer = 0
@@ -179,6 +234,14 @@ class GraphAlgo(GraphAlgoInterface):
         return container
 
     def connected_components(self) -> List[list]:
+        """
+        Finds all the Strongly Connected Component(SCC) in the graph.
+        check each vertex on the connected_components by given a node
+        @return: The list all SCC
+
+        Notes:
+        If the graph is None the function should return an empty list []
+        """
         ans = []
         graph_nodes = self.graph.get_all_v()
         for n in graph_nodes:
@@ -236,6 +299,12 @@ class GraphAlgo(GraphAlgoInterface):
             self.graph.get_node(k).set_tag(-1)
 
     def dijksytra_algo(self, src, dest) -> (float, list):
+        """
+        Dijkstra's shortest path algorithm (mentioned above) that is being implemented
+        :param src:
+        :param dest:
+        :return: (float, list)
+        """
         self.reset_nodes_tags()
         paths = {}
         container = []
@@ -243,26 +312,31 @@ class GraphAlgo(GraphAlgoInterface):
         container.append(self.graph.get_node(src))
         paths[src] = 0
         container[0].set_tag(0)
+        # create a dictionary, a list a variable, put inside the list the src node and resets everything created
         while pointer < len(container):
             node_o_pointer = container[pointer]
             src_key = node_o_pointer.get_key()
             node_neighbors = self.graph.all_out_edges_of_node(src_key)
             path_weight = paths[src_key]
             for k in range(0, len(node_neighbors)):
+                # walks over the node neighbors
                 dest_key = list(node_neighbors.keys())[k]
                 edge_weight = self.graph.get_edge_weight(src_key, dest_key)
                 node_pointer = self.graph.get_node(dest_key)
                 tag = node_pointer.get_tag()
                 if tag != -1:
+                    # checks if the node is visited
                     if path_weight + edge_weight < paths[dest_key]:
                         paths[dest_key] = path_weight + edge_weight
                 if node_pointer.get_tag() == -1:
+                    # checks if the node is unvisited
                     container.append(node_pointer)
                     paths[dest_key] = path_weight + edge_weight
                     node_pointer.set_tag(0)
             node_o_pointer.set_tag(1)
             pointer += 1
         if dest not in paths:
+            # if didn't find destination node in paths list
             return float('inf'), []
         ans = []
         pointer = 0
@@ -274,7 +348,7 @@ class GraphAlgo(GraphAlgoInterface):
             for i in paths:
                 n_2_k = i
                 path_weight_2 = paths[i]
-                edge_weight = self.graph.get_edge_weight(n_2_k,n_1_k)
+                edge_weight = self.graph.get_edge_weight(n_2_k, n_1_k)
                 if path_weight_2 + edge_weight == path_weight:
                     ans.append(n_2_k)
                     break
