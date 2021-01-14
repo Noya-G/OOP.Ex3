@@ -9,6 +9,8 @@ class DiGraph(GraphInterface):
         self.mc = 0
         self.edges = []
         self.vertices = {}
+        self.all_edges_out = {}
+        self.all_edges_in = {}
 
     def v_size(self) -> int:
         """
@@ -48,17 +50,15 @@ class DiGraph(GraphInterface):
             return False
         if self.get_node(id1) is None and self.get_node(id2) is None:
             return False
-        i = 0
-        while i < len(self.edges):
-            p = self.edges[i]
-            if p[0] == id1 and p[1] == id2:
-                self.edges.remove((id1, id2, p[2]))
-                self.edges.append((id1, id2, weight))
-                self.mc += 1
-                return True
-            i += 1
+        if self.has_edge(id1, id2):
+            return False
+        if id1 == id2:
+            return False
         self.edges.append((id1, id2, weight))
+        self.all_edges_in[id2][id1] = weight
+        self.all_edges_out[id1][id2] = weight
         self.mc += 1
+        return True
 
     def add_node(self, node_id: int, pos: tuple = None) -> bool:
         """
@@ -75,17 +75,19 @@ class DiGraph(GraphInterface):
         if pos is not None:
             vertex.set_position(pos[0], pos[1], pos[2])
         self.vertices[node_id] = vertex
+        self.all_edges_in[node_id] = {}
+        self.all_edges_out[node_id] = {}
         self.mc += 1
         return True
 
     def get_edge_weight(self, src: int, dest: int) -> float:
-        i = 0
-        while i < self.e_size():
-            e_p = self.edges[i]
-            if e_p[0] == src and e_p[1] == dest:
-                return e_p[2]
-            i += 1
-        return -1
+        """
+        gets the weight of an edge.
+        If there isn't will return -1 else returns the weight
+        """
+        if self.has_edge(src,dest) is False:
+            return -1
+        return self.all_edges_out[src][dest]
 
     def remove_node(self, node_id: int) -> bool:
         """
@@ -96,16 +98,14 @@ class DiGraph(GraphInterface):
         Note: if the node id does not exists the function will do nothing
         """
         if node_id not in self.vertices:
-            return False
+            pass
         i = 0
+        self.all_edges_out.__delitem__(node_id)
+        self.all_edges_in.__delitem__(node_id)
         while i < self.e_size():
             p = self.edges[i]
             if node_id == p[0]:
                 self.remove_edge(node_id, p[1])
-            i += 1
-        i = 0
-        while i < self.e_size():
-            p = self.edges[i]
             if node_id == p[1]:
                 self.remove_edge(node_id, p[0])
             i += 1
@@ -126,9 +126,15 @@ class DiGraph(GraphInterface):
             return False
         if node_id1 not in self.vertices or node_id2 not in self.vertices:
             return False
-        if not self.has_edge(node_id1, node_id2):
+        # print("node1: ",node_id1,", node2: ",node_id2 ," : ",self.has_edge(node_id1,node_id2))
+        if self.has_edge(node_id1, node_id2) is False:
             return False
         i = 0
+        # print("digraph: ",self.all_edges_in.__contains__(node_id2))
+        # print("node1: ",node_id1,", node2: ",node_id2 ," in: ",self.all_edges_in)
+        # print("node1: ", node_id1, ", node2: ", node_id2, " out: ", self.all_edges_out)
+        del self.all_edges_in[node_id2][node_id1]
+        del self.all_edges_out[node_id1][node_id2]
         while i < len(self.edges):
             p = self.edges[i]
             if p[0] == node_id1 and p[1] == node_id2:
@@ -137,13 +143,15 @@ class DiGraph(GraphInterface):
                 return True
             i += 1
 
+
     def get_node(self, node_id: int) -> GNode:
         """
         A method that returns a GNode object by given a specific node
         :param node_id:
         :return GNode:
         """
-        return self.vertices.get(node_id)
+        if node_id in self.get_all_v():
+            return self.vertices.get(node_id)
 
     def has_edge(self, src: int, dest: int) -> bool:
         """
@@ -152,39 +160,26 @@ class DiGraph(GraphInterface):
         :param dest:
         :return bool:
         """
-        i = 0
-        while i < len(self.edges):
-            p = self.edges[i]
-            if p[0] == src and p[1] == dest:
-                return True
-            i += 1
+        if dest in self.all_edges_out.get(src) and src in self.all_edges_in.get(dest):
+            return True
         return False
 
     def all_out_edges_of_node(self, id1: int) -> dict:
         """return a dictionary of all the nodes connected from node_id , each node is represented using a pair
         (other_node_id, weight)
         """
-        outcome = {}
-        i = 0
-        while i < len(self.edges):
-            p = self.edges[i]
-            if id1 == p[0]:
-                outcome[p[1]] = p[2]
-            i += 1
-        return outcome
+        if id1 not in self.vertices:
+            return {}
+        return self.all_edges_out[id1]
 
     def all_in_edges_of_node(self, id1: int) -> dict:
         """return a dictionary of all the nodes connected to (into) node_id ,
         each node is represented using a pair (other_node_id, weight)
          """
-        incoming = {}
-        i = 0
-        while i < len(self.edges):
-            p = self.edges[i]
-            if id1 == p[1]:
-                incoming[p[0]] = p[2]
-            i += 1
-        return incoming
+        empty_dict = {}
+        if id1 not in self.vertices:
+            return empty_dict
+        return self.all_edges_in[id1]
 
     def get_all_v(self) -> dict:
         """return a dictionary of all the nodes in the Graph, each node is represented using a pair
