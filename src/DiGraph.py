@@ -126,13 +126,9 @@ class DiGraph(GraphInterface):
             return False
         if node_id1 not in self.vertices or node_id2 not in self.vertices:
             return False
-        # print("node1: ",node_id1,", node2: ",node_id2 ," : ",self.has_edge(node_id1,node_id2))
         if self.has_edge(node_id1, node_id2) is False:
             return False
         i = 0
-        # print("digraph: ",self.all_edges_in.__contains__(node_id2))
-        # print("node1: ",node_id1,", node2: ",node_id2 ," in: ",self.all_edges_in)
-        # print("node1: ", node_id1, ", node2: ", node_id2, " out: ", self.all_edges_out)
         del self.all_edges_in[node_id2][node_id1]
         del self.all_edges_out[node_id1][node_id2]
         while i < len(self.edges):
@@ -168,7 +164,7 @@ class DiGraph(GraphInterface):
         """return a dictionary of all the nodes connected from node_id , each node is represented using a pair
         (other_node_id, weight)
         """
-        if id1 not in self.vertices:
+        if id1 not in self.all_edges_out:
             return {}
         return self.all_edges_out[id1]
 
@@ -176,9 +172,8 @@ class DiGraph(GraphInterface):
         """return a dictionary of all the nodes connected to (into) node_id ,
         each node is represented using a pair (other_node_id, weight)
          """
-        empty_dict = {}
-        if id1 not in self.vertices:
-            return empty_dict
+        if id1 not in self.all_edges_in:
+            return {}
         return self.all_edges_in[id1]
 
     def get_all_v(self) -> dict:

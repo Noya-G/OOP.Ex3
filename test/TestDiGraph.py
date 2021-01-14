@@ -1,7 +1,7 @@
 import random
 import unittest
 
-from DiGraph import DiGraph
+from src.DiGraph import DiGraph
 
 
 class MyTestCase(unittest.TestCase):
@@ -151,7 +151,7 @@ class MyTestCase(unittest.TestCase):
         g.add_edge(1, 5, 3)
         g.add_edge(1, 6, 3)
         dic = {0: 2, 1: 3, 2: 4, 3: 5, 4: 6}
-        self.assertDictEqual(g.all_out_edges_of_node(1), dic)
+        self.assertListEqual(list(g.all_out_edges_of_node(1)), [2, 3, 4, 5, 6])
         # generate a graph with 20 vertices > add 5 edges from one vertex > verify
         self.assertDictEqual(g.all_out_edges_of_node(8), {})
         # verify an empty dictionary for a node that does not have an edge
@@ -165,15 +165,15 @@ class MyTestCase(unittest.TestCase):
         g.add_edge(1, 4, 3)
         g.add_edge(1, 5, 3)
         g.add_edge(1, 6, 3)
-        self.assertDictEqual(g.all_in_edges_of_node(2), {0: 1})
-        self.assertDictEqual(g.all_in_edges_of_node(3), {0: 1})
-        self.assertDictEqual(g.all_in_edges_of_node(4), {0: 1})
-        self.assertDictEqual(g.all_in_edges_of_node(5), {0: 1})
-        self.assertDictEqual(g.all_in_edges_of_node(6), {0: 1})
+        self.assertListEqual(list(g.all_in_edges_of_node(2)), [1])
+        self.assertListEqual(list(g.all_in_edges_of_node(3)), [1])
+        self.assertListEqual(list(g.all_in_edges_of_node(4)), [1])
+        self.assertListEqual(list(g.all_in_edges_of_node(5)), [1])
+        self.assertListEqual(list(g.all_in_edges_of_node(6)), [1])
         # generate a graph with 20 vertices > add 5 edges from one vertex > verify all of em point to the first
-        self.assertDictEqual(g.all_in_edges_of_node(8), {})
+        self.assertListEqual(list(g.all_in_edges_of_node(8)), [])
         # verify an empty dictionary for a node that does not have an edge
-        self.assertDictEqual(g.all_in_edges_of_node(99), {})
+        self.assertListEqual(list(g.all_in_edges_of_node(99)), [])
         # verify an empty dictionary for a node that does not have an edge and does not exist
 
     def test_get_all_v(self):

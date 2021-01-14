@@ -1,14 +1,13 @@
 import json
 from random import random
 
-
 import matplotlib.pyplot as plt
 from typing import List
 
-from DiGraph import DiGraph
-from GNode import GNode
-from GraphAlgoInterface import GraphAlgoInterface
-from GraphInterface import GraphInterface
+from src.DiGraph import DiGraph
+from src.GNode import GNode
+from src.GraphAlgoInterface import GraphAlgoInterface
+from src.GraphInterface import GraphInterface
 
 
 class GraphAlgo(GraphAlgoInterface):
@@ -160,6 +159,8 @@ class GraphAlgo(GraphAlgoInterface):
         """
         if id1 not in self.graph.vertices or id2 not in self.graph.vertices:
             return float('inf'), []
+        if id1 == id2:
+            return 0, [id1]
         ans = self.dijksytra_algo(id1, id2)
         return ans
 
@@ -173,8 +174,6 @@ class GraphAlgo(GraphAlgoInterface):
         Notes:
         If the graph is None or id1 is not in the graph, the function should return an empty list []
         """
-        if self.graph is None or self.graph.get_node(id1) is None:
-            return []
         component_original = self.connected_component_aid_original_geph(id1)
         component_revers = self.connected_component_aid_reverse_geph(id1)
         container = []
@@ -183,6 +182,7 @@ class GraphAlgo(GraphAlgoInterface):
                 if k == m:
                     if k not in container:
                         container.append(k)
+                        self.graph.get_node(k).set_info("in")
         container.sort()
         return container
 
@@ -242,13 +242,22 @@ class GraphAlgo(GraphAlgoInterface):
         Notes:
         If the graph is None the function should return an empty list []
         """
+        self.reset_nodes_info()
         ans = []
         graph_nodes = self.graph.get_all_v()
         for n in graph_nodes:
-            mid_ans = self.connected_component(n)
-            if not ans.__contains__(mid_ans):
-                ans.append(self.connected_component(n))
+            if self.graph.get_node(n).get_info() != "in":
+                mid_ans = self.connected_component(n)
+                ans.append(mid_ans)
         return ans
+
+    def reset_nodes_info(self) -> None:
+        """
+        Aid function that walks all over the graph and reset each node's info
+        :return: None
+        """
+        for k in self.graph.get_all_v():
+            self.graph.get_node(k).set_info("")
 
     def plot_graph(self) -> None:
         """
@@ -287,7 +296,7 @@ class GraphAlgo(GraphAlgoInterface):
             plt.plot(x_list, y_list, color="CYAN")
         for i, txt in enumerate(key):
             ax.annotate(key[i], (x[i], y[i]), color="BLUE")
-
+        plt.title("Directed Weighted Graph - graph visualization")
         plt.show()
 
     def reset_nodes_tags(self) -> None:
@@ -326,8 +335,9 @@ class GraphAlgo(GraphAlgoInterface):
                 tag = node_pointer.get_tag()
                 if tag != -1:
                     # checks if the node is visited
-                    if path_weight + edge_weight < paths[dest_key]:
-                        paths[dest_key] = path_weight + edge_weight
+                    new_path = path_weight + edge_weight
+                    if new_path < paths[dest_key]:
+                        paths[dest_key] = new_path
                 if node_pointer.get_tag() == -1:
                     # checks if the node is unvisited
                     container.append(node_pointer)
@@ -342,17 +352,18 @@ class GraphAlgo(GraphAlgoInterface):
         pointer = 0
         key = dest
         ans.append(key)
-        while src not in ans:
-            path_weight = paths[ans[pointer]]
-            n_1_k = ans[pointer]
-            for i in paths:
-                n_2_k = i
-                path_weight_2 = paths[i]
-                edge_weight = self.graph.get_edge_weight(n_2_k, n_1_k)
-                if path_weight_2 + edge_weight == path_weight:
-                    ans.append(n_2_k)
-                    break
+        while src not in ans and pointer < len(ans):
+            key_pointer = ans[pointer]
+            path_key = paths[key_pointer]
+            key_neighbors = self.graph.all_in_edges_of_node(key_pointer)
+            for l in key_neighbors:
+                if l in paths:
+                    path_n = paths[l]
+                    e_b = self.graph.get_edge_weight(l, key_pointer)
+                    if round(e_b + path_n, 7) == round(path_key, 7):
+                        ans.append(l)
+                        break
             pointer += 1
-        ans.sort()
         return paths[dest], ans
+
 

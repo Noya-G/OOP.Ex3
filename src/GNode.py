@@ -8,7 +8,15 @@ class GNode:
         self.info = ""
         self.pos = None
         self.tag = -1
-
+    #     self.edges_out = {}
+    #     self.edges_in = {}
+    #
+    # def get_edges_out(self) -> dict:
+    #     return self.edges_out
+    #
+    # def get_edges_in(self) -> dict:
+    #     return self.edges_in
+    #
     def get_key(self):
         return self.key
 

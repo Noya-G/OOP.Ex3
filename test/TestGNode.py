@@ -1,6 +1,6 @@
 import unittest
 
-from GNode import GNode
+from src.GNode import GNode
 
 
 class MyTestCase(unittest.TestCase):
